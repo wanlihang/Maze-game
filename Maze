@@ -1,0 +1,286 @@
+#include<iostream>
+#include<windows.h>
+#include<conio.h>
+using namespace std;
+
+int maze[10][10]= //暂时设置一个测试程序功能的迷宫，最外围1为墙，0为可走路径，1为障碍
+{    
+    {1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,1,1,1},
+    {1,0,1,1,1,1,1,0,0,1},
+    {1,0,1,0,0,0,0,0,0,1},
+    {1,0,0,0,1,0,1,1,1,1},
+    {1,1,1,1,0,0,1,1,1,1},
+    {1,0,0,0,0,1,1,1,1,1},
+    {1,0,1,1,0,0,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1}
+};
+
+void begin_game()
+{
+	cout<<"\t\t\t\t\t\t******"<<endl;
+	cout<<"\t\t\t\t\t\tA GAME"<<endl;
+	cout<<"\t\t\t\t\t\t******"<<endl;
+	cout<<"1.进入游戏"<<endl;
+	cout<<"2.退出"<<endl;
+	cout<<"请输入你的选择：";
+	int ch;
+	cin>>ch;
+	switch(ch)
+	{
+	case 1:
+		break;
+	case 2:
+		system("cls");
+		cout<<"\t\t\t\t\t**********"<<endl;
+		cout<<"\t\t\t\t\t*感谢使用*"<<endl;
+		cout<<"\t\t\t\t\t**********"<<endl;
+		cin.get();
+		exit(0);
+		break;
+	}
+	system("cls");
+	return;
+}
+
+void give_plot()
+{
+	char a[]="=======================================================================================================================\n"
+			 "                                                       故事背景                                   （按ENTER键跳过动画）\n"
+			 "=======================================================================================================================\n"
+			 "                                              无数年前（无法追溯到源头）                                               \n"
+			 "                             最初人类生活在地球上，地球上的资源用之不尽，过着安详舒适的生活                            \n"
+			 "                                 人类极少部分人发现了自然的奥秘，这些人就是后来的巫师                                  \n"
+		 	 "                           由于人类的贪婪，驱使这些巫师不断地吸取自然资源，从而改变了自然平衡                          \n"
+			 "                                                       ========                                                        \n"
+			 "                                                     ‖任务目标‖                                                      \n"
+			 "                                                       ========                                                        \n"
+			 "                            你作为保护大自然的勇士，要勇敢的保卫大自然，阻止邪恶的人类和巫师                           \n"
+			 "                        而作为勇士的你，最终的目标就是跨过重重关卡和陷阱，找到巫师的心脏并摧毁它                       \n"
+			 "                                           因为只有这样才能真正的杀死巫师                                              \n"
+			 "                                                                                                                       \n"
+			 "                                            你的任务就是踏过这一百道关卡                                               \n"
+			 "                                        经历种种艰难险恶的战斗，最终获得胜利                                           \n"
+			 "                           我们已将最诚挚的祝福赐予你，希望你能成为大自然的守护者，人类的英雄！                        \n";
+	for(int i=0;i<strlen(a);i++)
+	{
+		if(kbhit())
+		{
+			char ch=getch();
+			if(ch==char(13))//读取到回车键，则跳过动画
+			{
+				system("cls");
+				cout<<a<<endl;
+				break;
+			}
+		}
+		if(a[i]!=' '&&a[i]!='=')
+			Sleep(50);
+		cout<<a[i];
+	}
+	cout<<endl;
+	cout<<"即将进入游戏，倒计时：";
+	for(int i=6;i>0;i--)//倒计时动画
+	{
+		cout<<i<<endl<<"                      ";
+		Sleep(1000);
+	}
+	system("cls");
+}
+
+void display_maze()
+{
+	cout<<"\t\t\t\t\t|     （W）         |    按1使用道具  |"<<endl;
+	cout<<"\t\t\t\t\t|（A）（S）（D）移动|（R）重新生成迷宫|"<<endl;
+	cout<<"\t\t\t\t\t---------------------------------------"<<endl<<endl;//将说明写入display里，减少代码长度
+	for(int i=0;i<10;i++)
+	{
+		cout<<"\t\t\t\t\t\t  ";//对齐
+		for(int j=0;j<10;j++)
+		{
+			if(maze[i][j]==1)//1为墙壁
+				cout<<"■";
+			if(maze[i][j]==0)//0为通路
+				cout<<"  ";
+			if(maze[i][j]==2)//2为人物
+				cout<<"㊣";
+		}
+		cout<<endl;
+	}
+}
+
+struct
+{
+    int x,y,d;
+}path[100];//x,y分别横纵坐标,d为方向：上下左右
+ 
+void solver_maze(int m,int n)
+{
+	int temp=99;//初始值设为99，用于比较出最短路径
+    int top=0,find=0,x,y,d=-1;//find为是否为通路，找到为1，否则为0，初始化为0
+    path[top].x=m;
+    path[top].y=n;
+    maze[m][n]=-1;
+    while(top>-1)
+	{
+        if(path[top].x==8&&path[top].y==8)//到达迷宫出口时，输出路径
+        {
+			if(temp>top)//最小路径输出
+			{
+				system("cls");
+				temp=top;
+				cout<<"以下为最短路径："<<endl;
+				for(x=0;x<=top;x++)
+				{
+					cout<<"("<<path[x].x<<","<<path[x].y<<")"<<"-->"<<endl;//把找到的路径输出
+				}
+				cout<<endl;
+			}
+        }
+        while(d<4&&find==0)
+		{
+            d++;
+            switch(d)
+			{
+            case 0:x=path[top].x-1; y=path[top].y;  break;//方向为上
+            case 1:x=path[top].x;   y=path[top].y+1;break;//方向为右
+            case 2:x=path[top].x+1; y=path[top].y;  break;//方向为下
+            case 3:x=path[top].x;   y=path[top].y-1;//方向为左
+			}
+            if(maze[x][y]==0)
+                find=1;
+        }
+        if(find==1)//若为通路，则：
+		{
+            path[top].d=d;
+            top++;
+            path[top].x=x;
+            path[top].y=y;
+            d=-1;find=0;//重新调整方向
+            maze[x][y]=-1;
+		}
+        else
+		{
+            maze[path[top].x][path[top].y]=0;
+            top--;d=path[top].d;//找不到的话退栈，方向为上一个的方向
+        }
+    }
+}
+
+void move()
+{
+	char ch;
+	int i=1,j=1;
+	maze[1][1]=2;
+	display_maze();
+	while(i!=8||j!=8)
+	{
+		maze[1][1]=0;
+		ch=getch();//直接读取键盘
+		switch(ch)//移动加使用道具
+		{
+			case'1'://暂时只加入一种道具，功能为：打印当前位置到出口的最短路径，（暂时未完成记录道具数量）
+				solver_maze(i,j);
+				Sleep(3000);
+				system("cls");
+			    display_maze();
+			case'w':
+				if(maze[i-1][j]==0)
+				{
+			        maze[i-1][j]=2;
+			        system("cls");
+					display_maze();
+					maze[i-1][j]=0;
+				    i=i-1;
+			    }
+				else
+			    {
+			        maze[i][j]=2;
+					system("cls");
+					cout<<"此路不通。"<<endl;
+					Sleep(500);
+					system("cls");
+			        display_maze();
+					maze[i][j]=0;
+			    }
+				break;
+			case'a':
+				if(maze[i][j-1]==0)
+				{
+			        maze[i][j-1]=2;
+			        system("cls");
+					display_maze();
+					maze[i][j-1]=0;
+				    j=j-1;
+			    }
+				else
+			    {
+					maze[i][j]=2;
+					system("cls");
+					cout<<"此路不通。"<<endl;
+					Sleep(500);
+					system("cls");
+			        display_maze();
+					maze[i][j]=0;
+			    }
+				break;
+			case's':
+				if(maze[i+1][j]==0)
+				{
+			        maze[i+1][j]=2;
+			        system("cls");
+					display_maze();
+					maze[i+1][j]=0;
+					i=i+1;
+			    }
+				else
+			    {
+					maze[i][j]=2;
+					system("cls");
+					cout<<"此路不通。"<<endl;
+					Sleep(500);
+					system("cls");
+			        display_maze();
+					maze[i][j]=0;
+			    }
+				break;
+			case'd':
+				if(maze[i][j+1]==0)
+				{
+			        maze[i][j+1]=2;
+			        system("cls");
+					display_maze();
+					maze[i][j+1]=0;
+				    j=j+1;
+			    }
+				else
+			    {
+					maze[i][j]=2;
+					system("cls");
+					cout<<"此路不通。"<<endl;
+					Sleep(500);
+					system("cls");
+			        display_maze();
+					maze[i][j]=0;
+			    }
+				break;
+			case'r':
+				system("cls");
+				i=1;
+				j=1;
+				//creat_maze();
+				//display();
+				break;
+		}
+	}
+	cout<<"恭喜，通关！"<<endl;
+}
+
+void main()
+{
+	begin_game();
+	give_plot();
+	move();
+	cout<<"结束！！！！！！！！！！！！！！"<<endl;
+}
