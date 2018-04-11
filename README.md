@@ -1,5 +1,5 @@
 # The-First
-	//第一个C++工程，于大二上数据结构，迷宫小游戏
+	//第一个C++工程，于大二上数据结构，迷宫小游戏1，创造寻路程序
 	#include<stdio.h>
 	#include<conio.h>
 	#include<windows.h>
